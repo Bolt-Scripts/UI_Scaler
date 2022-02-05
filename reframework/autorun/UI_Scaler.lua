@@ -5,13 +5,54 @@
 
 local settings = {
 	uiScale = 0.75;
-	wirebugScale = 0.8;
+	wirebugScale = 1.0;
 	mapScale = 0.8;
+	bottomRightScale = 0.75;
 };
 
 
 
+--These can sort of be customized but the only youll wanna do is add a scale value like {scale=0.5} or w/e
+--This will override the scale for that element
+local elementDatas = {
+	["snow.gui.GuiHud"] = {},
+	["snow.gui.GuiHud_QuestTarget"] = {},
+	["snow.gui.GuiHud_TimeLimit"] = {},
+	["snow.gui.GuiLobbyQuestInfoWindow"] = {},
+	["snow.gui.GuiHud_Sharpness"] = {},
+	["snow.gui.GuiHud_Weapon_L_Swd"] = {},
+	["snow.gui.GuiHud_Weapon_C_Axe"] = {},
+	["snow.gui.GuiHud_Weapon_S_Axe"] = {},
+	["snow.gui.GuiHud_Weapon_G_Lan"] = {},
+	["snow.gui.GuiHud_Weapon_Horn"] = {},
+	["snow.gui.GuiHud_Weapon_I_Glaive"] = {isGlaive = true},
+	["snow.gui.GuiHud_Weapon_Ham"] = {},
+	["snow.gui.GuiHud_Weapon_D_Bld"] = {},
+	["snow.gui.GuiHud_Weapon_Bowgun"] = {useScale = true},
+	["snow.gui.GuiQuestHudMapWindow"] = {anchor = "LeftBottom", isMap = true},
+	["snow.gui.GuiQuestHudBulletSlider"] = {anchor = "RightBottom"},
+	["snow.gui.GuiHud_ItemActionSlider"] = {anchor = "RightBottom"},
+	["snow.gui.GuiChatInfoWindow"] = {anchor = "RightCenter"},
+	["snow.gui.GuiProgressInfo"] = {anchor = "RightTop"},
+	["snow.gui.GuiQuestHudCustomShortCircle"] = {anchor = "RightCenter", },
 
+
+	--most of the issues below could be solved by moving the sub ui panels directly but thats really annoying to set up so 
+	--it is what it is atm
+
+	--you can try to turn this on but it makes the target reticle a bit off
+	--id recommend just turning the target hud off entirely
+	-- ["snow.gui.GuiHud_TgCamera"] = {isTargetElement = true, anchor = "RightTop"},
+
+	--this ones a bit tricky since the bugs are on the same object as the reticle and it doesnt scale quite right
+	--as a compromise im just shifting the reticle to the right so its still center
+	--not sure if this will cause issues on other resolutions or something tho
+	["snow.gui.GuiHud_HunterWire"] = {useScale = true, isWireB = true, anchor = "CenterCenter", offsetX = 0.25},
+
+	--unfortunately this doesnt scale properly and is also for player names which are in world space
+	--but this might be fine if you turn player names off anyway
+	-- ["snow.gui.GuiCommonHeadMessage"] = {anchor = "CenterCenter"}, 
+};
 
 
 
@@ -26,9 +67,8 @@ function LoadSettings()
 		settings = loadedSettings;
 	end
 
-	if not settings.mapScale then
-		settings.mapScale = 0.8;
-	end
+	if not settings.mapScale then settings.mapScale = 0.8; end
+	if not settings.bottomRightScale then settings.bottomRightScale = settings.uiScale; end
 end
 
 LoadSettings();
@@ -69,45 +109,6 @@ local dirScales = {
 	[8] = { 1,  1},
 };
 
-function GetAnchorDir(type)
-	return dirScales[anchors[type]];
-end
-
-local elementDatas = {
-	["snow.gui.GuiHud"] = {},
-	["snow.gui.GuiHud_QuestTarget"] = {},
-	["snow.gui.GuiHud_TimeLimit"] = {},
-	["snow.gui.GuiLobbyQuestInfoWindow"] = {},
-	["snow.gui.GuiHud_Sharpness"] = {},
-	["snow.gui.GuiHud_Weapon_L_Swd"] = {},
-	["snow.gui.GuiHud_Weapon_C_Axe"] = {},
-	["snow.gui.GuiHud_Weapon_S_Axe"] = {},
-	["snow.gui.GuiHud_Weapon_G_Lan"] = {},
-	["snow.gui.GuiHud_Weapon_Horn"] = {},
-	["snow.gui.GuiHud_Weapon_I_Glaive"] = {isGlaive = true},
-	["snow.gui.GuiHud_Weapon_Ham"] = {},
-	["snow.gui.GuiHud_Weapon_D_Bld"] = {},
-	["snow.gui.GuiHud_Weapon_Bowgun"] = {useScale = true},
-	["snow.gui.GuiQuestHudMapWindow"] = {anchor = "LeftBottom", isMap = true},
-	["snow.gui.GuiQuestHudBulletSlider"] = {anchor = "RightBottom"},
-	["snow.gui.GuiHud_ItemActionSlider"] = {anchor = "RightBottom"},
-	["snow.gui.GuiChatInfoWindow"] = {anchor = "RightCenter"},
-	["snow.gui.GuiProgressInfo"] = {anchor = "RightTop"},
-	["snow.gui.GuiQuestHudCustomShortCircle"] = {anchor = "RightCenter", },
-
-	--you can try to turn this on but it makes the target reticle a bit off
-	--id recommend just turning the target hud off entirely
-	-- ["snow.gui.GuiHud_TgCamera"] = {isTargetElement = true, anchor = "RightTop"},
-
-	--this ones a bit tricky since the bugs are on the same object as the reticle and it doesnt scale quite right
-	--as a compromise im just shifting the reticle to the right so its still center
-	--not sure if this will cause issues on other resolutions or something tho
-	["snow.gui.GuiHud_HunterWire"] = {useScale = true, isWireB = true, anchor = "CenterCenter", offsetX = 0.25},
-
-	--unfortunately this doesnt scale properly and is also for player names which are in world space
-	--but this might be fine if you turn player names off anyway
-	-- ["snow.gui.GuiCommonHeadMessage"] = {anchor = "CenterCenter"}, 
-};
 
 
 local guiManager = nil;
@@ -189,7 +190,7 @@ function CallChanges()
 
 		if behaviour then
 
-			local typeString = bToString:call(behaviour);
+			local typeString = behaviour:get_type_definition():get_full_name();
 			idx = idx + 1;
 			if idx == ram then
 				curType = typeString;
@@ -207,64 +208,54 @@ function CallChanges()
 			if not elementData.anchor then
 				elementData.anchor = "LeftTop";
 			end
+
+			local anchorIdx = anchors[elementData.anchor];
+
+
 			local view = view_root:get_data(behaviour);
 			tmpScale = elementData.scale;
+
 			if not tmpScale then
 				tmpScale = settings.uiScale;
 			end
+			if anchorIdx > 5 then
+				tmpScale = settings.bottomRightScale
+			end
+			
 			if elementData.isWireB then
 				tmpScale = settings.wirebugScale;
-			end
-			if elementData.isMap then
+
+			elseif elementData.isMap then
 				tmpScale = settings.mapScale;
 			end
+
+
 
 			invScale = 1 - tmpScale;
 			local scalePosX = baseWidth * invScale / tmpScale;
 			local scalePosY = baseHeight * invScale / tmpScale;
 
 			if elementData.isGlaive then
-				--this is so annoying
-				local tp = glaiveTopPanel:get_data(behaviour);
-				local newScale = ValueType.new(vec3Type);
-				vecCtor:call(newScale, tmpScale, tmpScale, 1.0);
-				set_Scale:call(tp, newScale);
-
-				local off = ValueType.new(vec3Type);
-				local oX = baseWidth * 0.15 * invScale;
-				local oY = baseHeight * 0.1 * invScale;
-				vecCtor:call(off, oX, oY, 1.0);
-
-				local pos = get_Position:call(tp);
-				local offPos = vecSub:call(nil, pos, off);
-				set_Position:call(tp, offPos);
-
+				HandleInsectGlaiveUI(behaviour);
 				goto continue;
 			end
+
 			
-			local nPos = ValueType.new(vec3Type);
 			local x = 0;
 			local y = 0;
 			if elementData.useScale then
 				tmpScale = tmpScale + (invScale * scaleAdjust);
-				local newScale = ValueType.new(vec3Type);
-				vecCtor:call(newScale, tmpScale, tmpScale, 1.0);
-				set_Scale:call(view, newScale);
+				set_Scale:call(view, Vector4f.new(tmpScale, tmpScale, 1.0, 1.0));
 			else
-				--idunno why calling create instance for via.size doesnt work properly but what the heck ever man
-				--edit: bc valuetype nonsense i.e. its a weird struct like type in RE
-				local newSize = ValueType.new(sizeType);
 				local scaleWidth = baseWidth / tmpScale;
-				sizeCtor:call(newSize, scaleWidth, scaleWidth * aspect);
-				set_ScreenSize:call(view, newSize);			
+				set_ScreenSize:call(view, Vector2f.new(scaleWidth, scaleWidth * aspect));
 
-				local dir = GetAnchorDir(elementData.anchor);				
+				local dir = dirScales[anchorIdx];			
 				x = (dir[1] * scalePosX);
 				y = (dir[2] * scalePosY);
 			end
 
 
-			--correction for target reticle
 			if elementData.isTargetElement then
 				CorrectReticlePos(_tgCameraUIAimPanel:get_data(behaviour));
 			end			
@@ -273,8 +264,8 @@ function CallChanges()
 				x = x + elementData.offsetX * scalePosX;
 			end
 
-			vecCtor:call(nPos, x, y, 0);
-			set_Position:call(view, nPos);
+			-- vecCtor:call(nPos, x, y, 0);
+			set_Position:call(view, Vector4f.new(x, y, 0, 1));
 		end
 		
 		
@@ -283,6 +274,23 @@ function CallChanges()
 end
 
 
+function HandleInsectGlaiveUI(behaviour)
+	--this is so annoying
+	local tp = glaiveTopPanel:get_data(behaviour);
+	set_Scale:call(tp, Vector4f.new(tmpScale, tmpScale, 1.0, 1.0));
+
+	local oX = baseWidth * 0.15 * invScale;
+	local oY = baseHeight * 0.1 * invScale;
+
+	-- local pos = ;
+	local offPos = vecSub:call(nil, 
+		get_Position:call(tp),
+	 	Vector4f.new(oX, oY, 1.0, 1.0)
+	);
+
+	set_Position:call(tp, offPos);
+end
+
 function CorrectReticlePos(reticle)
 
 	local reticlePos = get_Position:call(reticle);
@@ -290,11 +298,7 @@ function CorrectReticlePos(reticle)
 	local rX = -(baseWidth * invScale / tmpScale) * aspect;
 	local rY = (baseHeight * invScale / tmpScale) * aspect;
 
-	local adjustRetPos = ValueType.new(vec3Type);
-	vecCtor:call(adjustRetPos, rX, rY, 0.0);
-
-	local addPos = vecAdd:call(nil, reticlePos, adjustRetPos);
-	
+	local addPos = vecAdd:call(nil, reticlePos, Vector4f.new(rX, rY, 0.0, 1.0));	
 	set_Position:call(reticle, addPos);
 end
 
@@ -306,13 +310,16 @@ re.on_draw_ui(function()
 	
     if imgui.tree_node("UI Scaler") then
 
-		changed, settings.uiScale = imgui.slider_float("Scale", settings.uiScale, 0, 1);
-		changed, settings.wirebugScale = imgui.slider_float("WireBug Scale", settings.wirebugScale, 0, 1);
+		changed, settings.uiScale = imgui.slider_float("Top Left Scale", settings.uiScale, 0, 1);
+		changed, settings.bottomRightScale = imgui.slider_float("Right Scale", settings.bottomRightScale, 0, 1);
 		changed, settings.mapScale = imgui.slider_float("Map Scale", settings.mapScale, 0, 1);
+		changed, settings.wirebugScale = imgui.slider_float("WireBug Scale", settings.wirebugScale, 0, 1);
+
+
 
 		--debug
-		changed, ram = imgui.slider_int("ram", ram, 0, 100);
-		imgui.text(curType);
+		-- changed, ram = imgui.slider_int("ram", ram, 0, 100);
+		-- imgui.text(curType);
 
         imgui.tree_pop();
     end
