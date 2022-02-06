@@ -8,6 +8,8 @@ local settings = {
 	wirebugScale = 1.0;
 	mapScale = 0.8;
 	bottomRightScale = 0.75;
+
+	overkillMode = false;
 };
 
 
@@ -33,7 +35,7 @@ local elementDatas = {
 	["snow.gui.GuiHud_ItemActionSlider"] = {anchor = "RightBottom"},
 	["snow.gui.GuiChatInfoWindow"] = {anchor = "RightCenter"},
 	["snow.gui.GuiProgressInfo"] = {anchor = "RightTop"},
-	["snow.gui.GuiQuestHudCustomShortCircle"] = {anchor = "RightCenter", },
+	["snow.gui.GuiQuestHudCustomShortCircle"] = {anchor = "RightCenter"},
 
 
 	--most of the issues below could be solved by moving the sub ui panels directly but thats really annoying to set up so 
@@ -53,7 +55,59 @@ local elementDatas = {
 	-- ["snow.gui.GuiCommonHeadMessage"] = {anchor = "CenterCenter"}, 
 };
 
+local anchors = {
+	["LeftTop"     ] = 0,
+	["LeftCenter"  ] = 1,
+	["LeftBottom"  ] = 2,
+	["CenterTop"   ] = 3,
+	["CenterCenter"] = 4,
+	["CenterBottom"] = 5,
+	["RightTop"    ] = 6,
+	["RightCenter" ] = 7,
+	["RightBottom" ] = 8,
+};
 
+local dirScales = {
+	[0] = { 0,  0, "LeftTop"     },
+	[1] = { 0, .5, "LeftCenter"  },
+	[2] = { 0,  1, "LeftBottom"  },
+	[3] = {.5,  0, "CenterTop"   },
+	[4] = {.5, .5, "CenterCenter"},
+	[5] = {.5,  1, "CenterBottom"},
+	[6] = { 1,  0, "RightTop"    },
+	[7] = { 1, .5, "RightCenter" },
+	[8] = { 1,  1, "RightBottom" },
+};
+
+
+local elementIdxs = {};
+
+function GetElementSettings(typeString)
+
+	local elementSettings = settings.elementSettings[typeString];
+
+	-- elementSettings = nil;
+
+	if not elementSettings then
+
+		local data = elementDatas[typeString];
+		local anchorIdx = 0;
+		if data and data.anchor then
+			anchorIdx = anchors[data.anchor];
+		end
+
+		elementSettings = {
+			displayName = typeString:sub(10):gsub("GuiHud_", ""):gsub("Gui", "");
+			scale = settings.uiScale;
+			posX = 0;
+			posY = 0;
+			anchor = anchorIdx;
+		};
+		settings.elementSettings[typeString] = elementSettings;
+	end
+
+	return elementSettings;
+end
 
 
 function SaveSettings()
@@ -68,6 +122,15 @@ function LoadSettings()
 
 	if not settings.mapScale then settings.mapScale = 0.8; end
 	if not settings.bottomRightScale then settings.bottomRightScale = settings.uiScale; end
+	if not settings.elementSettings then settings.elementSettings = {}; end
+
+	for key, element in pairs(elementDatas) do
+		table.insert(elementIdxs, key);
+	end
+
+	table.sort(elementIdxs, function (left, right)
+		return (GetElementSettings(left).displayName) < (GetElementSettings(right).displayName);
+	end)
 end
 
 LoadSettings();
@@ -82,32 +145,6 @@ local scaleAdjust = 0.3;
  --for debug
 local ram = -1;
 local curType = "";
-
-
-local anchors = {
-	["LeftTop"     ] = 0,
-	["LeftCenter"  ] = 1,
-	["LeftBottom"  ] = 2,
-	["CenterTop"   ] = 3,
-	["CenterCenter"] = 4,
-	["CenterBottom"] = 5,
-	["RightTop"    ] = 6,
-	["RightCenter" ] = 7,
-	["RightBottom" ] = 8,
-};
-
-local dirScales = {
-	[0] = { 0,  0},
-	[1] = { 0, .5},
-	[2] = { 0,  1},
-	[3] = {.5,  0},
-	[4] = {.5, .5},
-	[5] = {.5,  1},
-	[6] = { 1,  0},
-	[7] = { 1, .5},
-	[8] = { 1,  1},
-};
-
 
 
 local guiManager = nil;
@@ -219,6 +256,11 @@ function ManipulateElement(guiBehaviour)
 	
 
 	local elementData = elementDatas[typeString];
+	local elementSettings = nil;
+	if settings.overkillMode then
+		elementSettings = GetElementSettings(typeString);
+	end
+
 	if not elementData then
 		elementData = {};
 		if ramIdx ~= ram then
@@ -229,26 +271,34 @@ function ManipulateElement(guiBehaviour)
 		elementData.anchor = "LeftTop";
 	end
 
-	local anchorIdx = anchors[elementData.anchor];
-
+	local anchorIdx;
+	if elementSettings then
+		anchorIdx = elementSettings.anchor;
+	else
+		anchorIdx = anchors[elementData.anchor];
+	end
 
 	local view = view_root:get_data(guiBehaviour);
 	tmpScale = elementData.scale;
-
-	if not tmpScale then
-		tmpScale = settings.uiScale;
-	end
-	if anchorIdx > 5 then
-		tmpScale = settings.bottomRightScale
-	end
 	
-	if elementData.isWireB then
-		tmpScale = settings.wirebugScale;
 
-	elseif elementData.isMap then
-		tmpScale = settings.mapScale;
+	if elementSettings then
+		tmpScale = elementSettings.scale;
+	else
+		if not tmpScale then
+			tmpScale = settings.uiScale;
+		end
+		if anchorIdx > 5 then
+			tmpScale = settings.bottomRightScale
+		end
+		
+		if elementData.isWireB then
+			tmpScale = settings.wirebugScale;
+			
+		elseif elementData.isMap then
+			tmpScale = settings.mapScale;
+		end		
 	end
-
 
 
 	invScale = 1 - tmpScale;
@@ -282,6 +332,11 @@ function ManipulateElement(guiBehaviour)
 
 	if elementData.offsetX then
 		x = x + elementData.offsetX * scalePosX;
+	end
+
+	if elementSettings then
+		x = x + elementSettings.posX;
+		y = y + elementSettings.posY;
 	end
 
 	set_Position:call(view, Vector4f.new(x, y, 0, 1));
@@ -320,6 +375,23 @@ end
 
 
 
+function DrawElementSettings(element)
+	imgui.text(element.displayName);
+	imgui.spacing();
+	imgui.begin_rect();
+	local anchorName = dirScales[element.anchor][3];
+	changed, element.scale = imgui.slider_float("Scale: "..element.displayName, element.scale, 0, 1);
+	changed, element.posX = imgui.slider_float("X Pos: "..element.displayName, element.posX, -2000, 2000);
+	changed, element.posY = imgui.slider_float("Y Pos: "..element.displayName, element.posY, -2000, 2000);
+
+	changed, element.anchor = imgui.slider_int("Anchor: "..element.displayName, element.anchor, 0, 8);
+	imgui.same_line();
+	imgui.text(anchorName);
+
+	imgui.end_rect(5);
+	imgui.new_line();
+end
+
 re.on_draw_ui(function()
 
 	local changed = false;
@@ -331,12 +403,27 @@ re.on_draw_ui(function()
 		changed, settings.mapScale = imgui.slider_float("Map Scale", settings.mapScale, 0, 1);
 		changed, settings.wirebugScale = imgui.slider_float("WireBug Scale", settings.wirebugScale, 0, 1);
 
+		imgui.spacing()
+		changed, settings.overkillMode = imgui.checkbox("Overkill Mode", settings.overkillMode);
+
+		if settings.overkillMode then
+			if imgui.tree_node("Overkill Settings") then
+
+				imgui.spacing();
+				for i, key in ipairs(elementIdxs) do
+					DrawElementSettings(GetElementSettings(key));
+				end
+
+				imgui.tree_pop();
+			end
+		end
 
 
 		--debug
 		-- changed, ram = imgui.slider_int("ram", ram, 0, 100);
 		-- imgui.text(curType);
-
+		
+		imgui.spacing();
         imgui.tree_pop();
     end
 
