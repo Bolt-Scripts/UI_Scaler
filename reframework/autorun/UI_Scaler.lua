@@ -125,7 +125,7 @@ function SetDefaultSubPanels()
 			_BowgunBulletPanel = {
 				anchor = 0;
 				posAdjustX = 0.075;
-				posAdjustY = 0.1;
+				posAdjustY = 0.115;
 				posX = 0.0;
 				posY = 0.0;
 				scale = 1.0;
@@ -135,6 +135,15 @@ function SetDefaultSubPanels()
 				anchor = 8;
 				posAdjustX = 1;
 				posAdjustY = 0.3;
+				posX = 0.0;
+				posY = 0.0;
+				scale = 1.0;
+				useGlobalScale = true;
+			},
+			_BowgunBulletStatus = {
+				anchor = 0;
+				posAdjustX = 0;
+				posAdjustY = 0;
 				posX = 0.0;
 				posY = 0.0;
 				scale = 1.0;
