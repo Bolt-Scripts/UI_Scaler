@@ -11,7 +11,6 @@ local settings = {
 };
 
 
-
 --These can sort of be customized but the only youll wanna do is add a scale value like {scale=0.5} or w/e
 --This will override the scale for that element
 local elementDatas = {
@@ -154,6 +153,7 @@ local mSize = behaviourListType:get_field("mSize");
 local mItems = behaviourListType:get_field("mItems");
 
 local behaviourType = sdk.find_type_definition("snow.gui.GuiRootBaseBehavior");
+local behaviourTypeSystem = sdk.typeof("snow.gui.GuiRootBaseBehavior");
 local bToString = behaviourType:get_method("ToString()");
 local view_root = behaviourType:get_field("view_root");
 
@@ -168,16 +168,24 @@ local _tgCameraUIAimPanel = tgType:get_field("_tgCameraUIAimPanel");
 
 local panelType = sdk.find_type_definition("via.gui.Panel");
 
+local viaGuiType = sdk.find_type_definition("via.gui.GUI");
+local get_GameObject = viaGuiType:get_method("get_GameObject");
+local goType = sdk.find_type_definition("via.GameObject");
+local get_Components = goType:get_method("get_Components");
+local getComponent = goType:get_method("getComponent(System.Type)");
+
+
 local invScale = 0;
 local tmpScale = 1;
+local ramIdx = -1;
 
-function CallChanges()
+function GuiListIterate()
 
 	local behaviourTable = _guiSystemBehaviorTbl:get_data(GetGuiManager());
 	local count = _count:get_data(behaviourTable);
 	local entries = _entries:get_data(behaviourTable);
 
-	local idx = -1;
+	ramIdx = -1;
 
 	for i=0, count do
 		local bList = value:get_data(entries[i]);
@@ -186,92 +194,100 @@ function CallChanges()
 		end
 		
 		local guiBaseRootBehaviours = mItems:get_data(bList);
-		local behaviour = guiBaseRootBehaviours[0];		
+		local behaviour = guiBaseRootBehaviours[0];
 
 		if behaviour then
-
-			local typeString = behaviour:get_type_definition():get_full_name();
-			idx = idx + 1;
-			if idx == ram then
-				curType = typeString;
-				-- goto continue;
-			end
-			
-
-			local elementData = elementDatas[typeString];
-			if not elementData then
-				elementData = {};
-				if idx ~= ram then
-					goto continue;
-				end
-			end
-			if not elementData.anchor then
-				elementData.anchor = "LeftTop";
-			end
-
-			local anchorIdx = anchors[elementData.anchor];
-
-
-			local view = view_root:get_data(behaviour);
-			tmpScale = elementData.scale;
-
-			if not tmpScale then
-				tmpScale = settings.uiScale;
-			end
-			if anchorIdx > 5 then
-				tmpScale = settings.bottomRightScale
-			end
-			
-			if elementData.isWireB then
-				tmpScale = settings.wirebugScale;
-
-			elseif elementData.isMap then
-				tmpScale = settings.mapScale;
-			end
-
-
-
-			invScale = 1 - tmpScale;
-			local scalePosX = baseWidth * invScale / tmpScale;
-			local scalePosY = baseHeight * invScale / tmpScale;
-
-			if elementData.isGlaive then
-				HandleInsectGlaiveUI(behaviour);
-				goto continue;
-			end
-
-			
-			local x = 0;
-			local y = 0;
-			if elementData.useScale then
-				tmpScale = tmpScale + (invScale * scaleAdjust);
-				set_Scale:call(view, Vector4f.new(tmpScale, tmpScale, 1.0, 1.0));
-			else
-				local scaleWidth = baseWidth / tmpScale;
-				set_ScreenSize:call(view, Vector2f.new(scaleWidth, scaleWidth * aspect));
-
-				local dir = dirScales[anchorIdx];			
-				x = (dir[1] * scalePosX);
-				y = (dir[2] * scalePosY);
-			end
-
-
-			if elementData.isTargetElement then
-				CorrectReticlePos(_tgCameraUIAimPanel:get_data(behaviour));
-			end			
-
-			if elementData.offsetX then
-				x = x + elementData.offsetX * scalePosX;
-			end
-
-			-- vecCtor:call(nPos, x, y, 0);
-			set_Position:call(view, Vector4f.new(x, y, 0, 1));
+			ManipulateElement(behaviour);
 		end
 		
 		
 		::continue::
 	end
 end
+
+function ManipulateElement(guiBehaviour)
+
+	local typeString = guiBehaviour:get_type_definition():get_full_name();
+
+	-- log.info(typeString);
+
+	ramIdx = ramIdx + 1;
+	if ramIdx == ram then
+		curType = typeString;
+		return;
+	end
+	
+
+	local elementData = elementDatas[typeString];
+	if not elementData then
+		elementData = {};
+		if ramIdx ~= ram then
+			return;
+		end
+	end
+	if not elementData.anchor then
+		elementData.anchor = "LeftTop";
+	end
+
+	local anchorIdx = anchors[elementData.anchor];
+
+
+	local view = view_root:get_data(guiBehaviour);
+	tmpScale = elementData.scale;
+
+	if not tmpScale then
+		tmpScale = settings.uiScale;
+	end
+	if anchorIdx > 5 then
+		tmpScale = settings.bottomRightScale
+	end
+	
+	if elementData.isWireB then
+		tmpScale = settings.wirebugScale;
+
+	elseif elementData.isMap then
+		tmpScale = settings.mapScale;
+	end
+
+
+
+	invScale = 1 - tmpScale;
+	local scalePosX = baseWidth * invScale / tmpScale;
+	local scalePosY = baseHeight * invScale / tmpScale;
+
+	if elementData.isGlaive then
+		HandleInsectGlaiveUI(guiBehaviour);
+		return;
+	end
+
+	
+	local x = 0;
+	local y = 0;
+	if elementData.useScale then
+		tmpScale = tmpScale + (invScale * scaleAdjust);
+		set_Scale:call(view, Vector4f.new(tmpScale, tmpScale, 1.0, 1.0));
+	else
+		local scaleWidth = baseWidth / tmpScale;
+		set_ScreenSize:call(view, Vector2f.new(scaleWidth, scaleWidth * aspect));
+
+		local dir = dirScales[anchorIdx];			
+		x = (dir[1] * scalePosX);
+		y = (dir[2] * scalePosY);
+	end
+
+
+	if elementData.isTargetElement then
+		CorrectReticlePos(_tgCameraUIAimPanel:get_data(guiBehaviour));
+	end			
+
+	if elementData.offsetX then
+		x = x + elementData.offsetX * scalePosX;
+	end
+
+	set_Position:call(view, Vector4f.new(x, y, 0, 1));
+end
+
+
 
 
 function HandleInsectGlaiveUI(behaviour)
@@ -326,8 +342,30 @@ re.on_draw_ui(function()
 
 end)
 
-re.on_application_entry("RenderGUI", function()
-	CallChanges();
+
+
+re.on_pre_gui_draw_element(function(element, context)
+
+	local gui_game_object = get_GameObject:call(element);
+	if gui_game_object == nil then return true end;	
+
+
+	--not really sure which is faster with this
+	--dunno if getcomponent is slow or not vs just getting the array of components
+	--probably doesnt really matter but who knows
+	--but it feels like itd be slower to do get_elements and iterate all the components
+	--though I also dunno what get_elements() actually does.
+	--I just hope none of this allocates a bunch of garbage but its really hard to know
+
+    -- local components = get_Components:call(gui_game_object):get_elements();
+    -- for i, component in ipairs(components) do
+	-- 	ManipulateElement(component);
+    -- end
+
+	local behaviour = getComponent:call(gui_game_object, behaviourTypeSystem);
+	if behaviour then
+		ManipulateElement(behaviour);
+	end
 end)
 
 
