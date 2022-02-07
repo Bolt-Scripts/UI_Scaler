@@ -39,6 +39,7 @@ elementDatas = {
 	["snow.gui.GuiHud_TgCamera"] = {isComplex = true, anchor = "RightTop"},
 	["snow.gui.GuiHud_HunterWire"] = {isComplex = true, anchor = "CenterBottom"},
 	["snow.gui.GuiCommonHeadMessage"] = {isComplex = true, anchor = "CenterCenter"}, 
+	["snow.gui.GuiCommonOtomoHeadMessage"] = {isComplex = true, anchor = "CenterCenter"}, 
 };
 
 
@@ -84,6 +85,32 @@ function SetDefaultSubPanels(settings)
 				posY = 0.0;
 				scale = 1.0;
 				useGlobalScale = true;
+			},
+            _headName_Panel = {
+				anchor = 4;
+				posAdjustX = 0;
+				posAdjustY = 0;
+				posX = 0.0;
+				posY = 0.0;
+				scale = 1.0;
+				useGlobalScale = true;
+                isName = true;
+			},
+		};
+	end
+
+    eName = "snow.gui.GuiCommonOtomoHeadMessage";
+	if not settings.elementSettings[eName].subPanels then
+		settings.elementSettings   [eName].subPanels = {
+            _pnl_OtomoHeadUI = {
+				anchor = 4;
+				posAdjustX = 0;
+				posAdjustY = 0;
+				posX = 0.0;
+				posY = 0.0;
+				scale = 1.0;
+				useGlobalScale = true;
+                isName = true;
 			},
 		};
 	end

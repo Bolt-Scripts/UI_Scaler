@@ -7,6 +7,7 @@ local settings = {
 	centerScale = 0.75;
 	mapScale = 0.8;
 	bottomRightScale = 0.75;
+	namesScale = 0.75;
 
 	overkillMode = false;
 	unlockScaleSliders = false;
@@ -97,6 +98,7 @@ function LoadSettings()
 		settings = loadedSettings;
 	end
 
+	if not settings.namesScale then settings.namesScale = 0.75; end
 	if not settings.mapScale then settings.mapScale = 0.8; end
 	if not settings.centerScale then settings.centerScale = 0.75; end
 	if not settings.bottomRightScale then settings.bottomRightScale = settings.uiScale; end
@@ -337,7 +339,9 @@ end
 function HandleSubPanel(behaviour, subPanel, subPanelName)
 	
 	if subPanel.useGlobalScale then
-		if subPanel.anchor > 5 then
+		if subPanel.isName then
+			tmpScale = settings.namesScale;
+		elseif subPanel.anchor > 5 then
 			tmpScale = settings.bottomRightScale;
 		elseif subPanel.anchor > 2 then
 			tmpScale = settings.centerScale;
@@ -619,6 +623,7 @@ re.on_draw_ui(function()
 		changed, settings.centerScale = imgui.slider_float("Center Scale", settings.centerScale, 0, 1);
 		changed, settings.bottomRightScale = imgui.slider_float("Right Scale", settings.bottomRightScale, 0, 1);
 		changed, settings.mapScale = imgui.slider_float("Map Scale", settings.mapScale, 0, 1);
+		changed, settings.namesScale = imgui.slider_float("Names Scale", settings.namesScale, 0, 1);
 
 		--debug
 		-- changed, ram = imgui.slider_int("ram", ram, 0, 100);
