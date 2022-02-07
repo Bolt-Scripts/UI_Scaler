@@ -609,8 +609,8 @@ re.on_draw_ui(function()
 		changed, settings.mapScale = imgui.slider_float("Map Scale", settings.mapScale, 0, 1);
 
 		--debug
-		changed, ram = imgui.slider_int("ram", ram, 0, 100);
-		imgui.text(curType);
+		-- changed, ram = imgui.slider_int("ram", ram, 0, 100);
+		-- imgui.text(curType);
 
 		imgui.new_line();
 		changed, settings.overkillMode = imgui.checkbox("Overkill Mode", settings.overkillMode);
@@ -625,33 +625,33 @@ re.on_draw_ui(function()
 end)
 
 
-re.on_application_entry("RenderGUI", function()
-	GuiListIterate();
-end)
-
--- re.on_pre_gui_draw_element(function(element, context)
-
--- 	local gui_game_object = get_GameObject:call(element);
--- 	if gui_game_object == nil then return true end;	
-
-
--- 	--not really sure which is faster with this
--- 	--dunno if getcomponent is slow or not vs just getting the array of components
--- 	--probably doesnt really matter but who knows
--- 	--but it feels like itd be slower to do get_elements and iterate all the components
--- 	--though I also dunno what get_elements() actually does.
--- 	--I just hope none of this allocates a bunch of garbage but its really hard to know
-
---     -- local components = get_Components:call(gui_game_object):get_elements();
---     -- for i, component in ipairs(components) do
--- 	-- 	ManipulateElement(component);
---     -- end
-
--- 	local behaviour = getComponent:call(gui_game_object, behaviourTypeSystem);
--- 	if behaviour then
--- 		ManipulateElement(behaviour);
--- 	end
+-- re.on_application_entry("RenderGUI", function()
+-- 	GuiListIterate();
 -- end)
+
+re.on_pre_gui_draw_element(function(element, context)
+
+	local gui_game_object = get_GameObject:call(element);
+	if gui_game_object == nil then return true end;	
+
+
+	--not really sure which is faster with this
+	--dunno if getcomponent is slow or not vs just getting the array of components
+	--probably doesnt really matter but who knows
+	--but it feels like itd be slower to do get_elements and iterate all the components
+	--though I also dunno what get_elements() actually does.
+	--I just hope none of this allocates a bunch of garbage but its really hard to know
+
+    -- local components = get_Components:call(gui_game_object):get_elements();
+    -- for i, component in ipairs(components) do
+	-- 	ManipulateElement(component);
+    -- end
+
+	local behaviour = getComponent:call(gui_game_object, behaviourTypeSystem);
+	if behaviour then
+		ManipulateElement(behaviour);
+	end
+end)
 
 
 re.on_config_save(function()
