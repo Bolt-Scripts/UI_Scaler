@@ -2,7 +2,6 @@
 
 
 
-
 local settings = {
 	uiScale = 0.75;
 	centerScale = 0.75;
@@ -10,149 +9,11 @@ local settings = {
 	bottomRightScale = 0.75;
 
 	overkillMode = false;
+	unlockScaleSliders = false;
 };
 
+require("UI_Scaler_Element_Setup");
 
---These can sort of be customized but the only youll wanna do is add a scale value like {scale=0.5} or w/e
---This will override the scale for that element
-local elementDatas = {
-	["snow.gui.GuiHud"] = {},
-	["snow.gui.GuiHud_QuestTarget"] = {},
-	["snow.gui.GuiHud_Timelimit"] = {},
-	["snow.gui.GuiLobbyQuestInfoWindow"] = {},
-	["snow.gui.GuiHud_Sharpness"] = {},
-	["snow.gui.GuiHud_Weapon_L_Swd"] = {},
-	["snow.gui.GuiHud_Weapon_C_Axe"] = {},
-	["snow.gui.GuiHud_Weapon_S_Axe"] = {},
-	["snow.gui.GuiHud_Weapon_G_Lan"] = {},
-	["snow.gui.GuiHud_Weapon_Horn"] = {},
-	["snow.gui.GuiHud_Weapon_I_Glaive"] = {isComplex = true},
-	["snow.gui.GuiHud_Weapon_Ham"] = {},
-	["snow.gui.GuiHud_Weapon_D_Bld"] = {},
-	["snow.gui.GuiHud_Weapon_Bowgun"] = {isComplex = true},
-	["snow.gui.GuiQuestHudMapWindow"] = {anchor = "LeftBottom", isMap = true},
-	["snow.gui.GuiQuestHudBulletSlider"] = {anchor = "RightBottom"},
-	["snow.gui.GuiHud_ItemActionSlider"] = {anchor = "RightBottom"},
-	["snow.gui.GuiChatInfoWindow"] = {anchor = "RightCenter"},
-	["snow.gui.GuiProgressInfo"] = {anchor = "RightTop"},
-	["snow.gui.GuiQuestHudCustomShortCircle"] = {anchor = "RightCenter"},
-
-	["snow.gui.GuiHud_TgCamera"] = {isComplex = true, anchor = "RightTop"},
-	["snow.gui.GuiHud_HunterWire"] = {isComplex = true, anchor = "CenterBottom"},
-	["snow.gui.GuiCommonHeadMessage"] = {isComplex = true, anchor = "CenterCenter"}, 
-};
-
-
-function SetDefaultSubPanels()
-	local eName = "snow.gui.GuiHud_Weapon_I_Glaive";
-	if not settings.elementSettings[eName].subPanels then
-		settings.elementSettings   [eName].scale = 1;
-		settings.elementSettings   [eName].subPanels = {
-			pnl_I_Gla_Top = {
-				anchor = 0.0;
-				posAdjustX = 0.15;
-				posAdjustY = 0.1;
-				posX = 0.0;
-				posY = 0.0;
-				scale = 1.0;
-				useGlobalScale = true;
-			},
-		};
-	end
-
-	eName = "snow.gui.GuiHud_TgCamera";
-	if not settings.elementSettings[eName].subPanels then
-		settings.elementSettings   [eName].scale = 1;
-		settings.elementSettings   [eName].subPanels = {
-			_tgCameraIconPanel = {
-				anchor = 6;
-				posAdjustX = 1;
-				posAdjustY = 0;
-				posX = 0.0;
-				posY = 0.0;
-				scale = 1.0;
-				useGlobalScale = true;
-			},
-		};
-	end
-
-	eName = "snow.gui.GuiCommonHeadMessage";
-	if not settings.elementSettings[eName].subPanels then
-		settings.elementSettings   [eName].scale = 1;
-		settings.elementSettings   [eName].subPanels = {
-			_pnl_HeadUI = {
-				anchor = 4;
-				posAdjustX = 0;
-				posAdjustY = 0;
-				posX = 0.0;
-				posY = 0.0;
-				scale = 1.0;
-				useGlobalScale = true;
-			},
-		};
-	end
-
-	eName = "snow.gui.GuiHud_HunterWire";
-	if not settings.elementSettings[eName].subPanels then
-		settings.elementSettings   [eName].scale = 1;
-		settings.elementSettings   [eName].subPanels = {
-			pnl_HunterWire = {
-				anchor = 5;
-				posAdjustX = 1;
-				posAdjustY = 0.925;
-				posX = 0.0;
-				posY = 0.0;
-				scale = 1.0;
-				useGlobalScale = true;
-				absolutePos = true;
-			},
-			pnl_WireAiming = {
-				anchor = 4;
-				posAdjustX = 0;
-				posAdjustY = 0;
-				posX = 0.0;
-				posY = 0.0;
-				scale = 1.0;
-				useGlobalScale = true;
-			},
-		};
-	end
-
-	eName = "snow.gui.GuiHud_Weapon_Bowgun";
-	if not settings.elementSettings[eName].subPanels then
-		settings.elementSettings   [eName].scale = 1;
-		settings.elementSettings   [eName].subPanels = {
-			_BowgunBulletPanel = {
-				anchor = 0;
-				posAdjustX = 0.075;
-				posAdjustY = 0.115;
-				posX = 0.0;
-				posY = 0.0;
-				scale = 1.0;
-				useGlobalScale = true;
-			},
-			_BowgunSpecialPosPanel = {
-				anchor = 8;
-				posAdjustX = 1;
-				posAdjustY = 0.3;
-				posX = 0.0;
-				posY = 0.0;
-				scale = 1.0;
-				useGlobalScale = true;
-			},
-			_BowgunBulletStatus = {
-				anchor = 0;
-				posAdjustX = 0;
-				posAdjustY = 0;
-				posX = 0.0;
-				posY = 0.0;
-				scale = 1.0;
-				useGlobalScale = true;
-			},
-		};
-	end
-
-end
 
 local anchors = {
 	["LeftTop"     ] = 0,
@@ -246,7 +107,7 @@ function LoadSettings()
 
 	SortElements();
 
-	SetDefaultSubPanels();
+	SetDefaultSubPanels(settings);
 end
 
 function SortElements()
@@ -263,12 +124,6 @@ function SortElements()
 end
 
 LoadSettings();
-
-
-local baseWidth = 1920.0;
-local baseHeight = 1080.0;
-local aspect = 0.5625;
-local scaleAdjust = 0.3;
 
 
  --for debug
@@ -328,6 +183,7 @@ local tgType = sdk.find_type_definition("snow.gui.GuiHud_TgCamera");
 local _tgCameraUIAimPanel = tgType:get_field("_tgCameraUIAimPanel");
 
 local panelType = sdk.find_type_definition("via.gui.Panel");
+local guiElementType = sdk.find_type_definition("via.gui.Element");
 
 local viaGuiType = sdk.find_type_definition("via.gui.GUI");
 local get_GameObject = viaGuiType:get_method("get_GameObject");
@@ -416,7 +272,12 @@ function ManipulateElement(guiBehaviour)
 	
 
 	if elementSettings then
-		tmpScale = elementSettings.scale;
+		if elementData.isComplex then
+			--dont really wanna use the scale on the parent component for these since its handled in the panels themselves
+			tmpScale = 1;
+		else
+			tmpScale = elementSettings.scale;
+		end
 	else
 		if not tmpScale then
 			tmpScale = settings.uiScale;
@@ -483,7 +344,7 @@ function HandleSubPanel(behaviour, subPanel, subPanelName)
 	invScale = 1 - tmpScale;
 
 	local tp = behaviour:get_field(subPanelName);
-	set_Scale:call(tp, Vector4f.new(tmpScale, tmpScale, 1.0, 1.0));
+	if not tp then return end;
 
 	local dir = subDirScales[subPanel.anchor];
 	local oX = (dir[1] * baseWidth *  subPanel.posAdjustX * invScale);
@@ -504,7 +365,15 @@ function HandleSubPanel(behaviour, subPanel, subPanelName)
 		);
 	end	
 
+
 	set_Position:call(tp, offPos);
+	
+	if tp:get_type_definition():is_a(guiElementType) then
+		--these dont really support scale properly
+		return;
+	end
+
+	set_Scale:call(tp, Vector4f.new(tmpScale, tmpScale, 1.0, 1.0));
 end
 
 
@@ -548,6 +417,7 @@ function DrawElementSelector()
 		local newGuy = {
 			displayName = GetElementClassDisplayName(bName);
 			anchor = 0;
+			scale = 1;
 		};
 		elementDatas[bName] = newGuy;
 		settings.elementSettings[bName] = newGuy;
@@ -556,12 +426,16 @@ function DrawElementSelector()
 end
 
 function DrawPositioningUI(element)
-	local anchorName = dirScales[element.anchor][3];
-	changed, element.scale = imgui.slider_float("Scale", element.scale, 0, 1);
-	changed, element.posX = imgui.slider_float("X Pos" , element.posX, -2000, 2000);
-	changed, element.posY = imgui.slider_float("Y Pos" , element.posY, -2000, 2000);
+	if settings.unlockScaleSliders then
+		changed, element.scale = imgui.drag_float("Scale", element.scale, 0.001, 0, 100);
+	else
+		changed, element.scale = imgui.slider_float("Scale", element.scale, 0, 1);
+	end
+	changed, element.posX = imgui.drag_float("X Pos" , element.posX, 0.1, -2500, 2500);
+	changed, element.posY = imgui.drag_float("Y Pos" , element.posY, 0.1, -2500, 2500);
 	changed, element.anchor = imgui.slider_int("Anchor:", element.anchor, 0, 8);
 	imgui.same_line();
+	local anchorName = dirScales[element.anchor][3];
 	imgui.text(anchorName);
 end
 
@@ -579,6 +453,7 @@ function DrawElementSettings(element, typeName)
 		imgui.spacing();
 		imgui.begin_rect();
 
+		imgui.text("Full Type Name: "..typeName);
 		DrawPositioningUI(element);
 
 		imgui.new_line();
@@ -596,7 +471,7 @@ function DrawElementSettings(element, typeName)
 			end
 
 			for i, field in ipairs(fields) do
-				if field:get_type() == panelType and not element.subPanels[field:get_name()] then
+				if (field:get_type():is_a(transformType) or field:get_type():is_a(guiElementType)) and not element.subPanels[field:get_name()] then
 					table.insert(fieldNames, field:get_name());
 				end
 			end
@@ -612,8 +487,8 @@ function DrawElementSettings(element, typeName)
 					anchor = element.anchor;
 					posX = 0;
 					posY = 0;
-					posAdjustX = 0.16;
-					posAdjustY = 0.1;
+					posAdjustX = 0;
+					posAdjustY = 0;
 					scale = 1;
 				};
 			end
@@ -663,6 +538,59 @@ function DrawElementSettings(element, typeName)
 end
 
 
+local confirmReset = false;
+
+function DrawOverkillUI()
+	if imgui.tree_node("Overkill Settings") then
+
+		changed, settings.unlockScaleSliders = imgui.checkbox("Unlock Scale Sliders", settings.unlockScaleSliders);
+
+		imgui.same_line();
+		if imgui.button("Copy Left Scale to All") then
+			for elementName, element in pairs(settings.elementSettings) do
+				element.scale = settings.uiScale;
+				if element.subPanels then
+					for panelName, subPanel in pairs(element.subPanels) do
+						subPanel.scale = settings.uiScale;
+					end
+				end
+			end
+		end
+
+
+		imgui.same_line();
+		if imgui.button(confirmReset and "Are you sure?" or "Reset All") then
+			if confirmReset then
+				settings.elementSettings = nil;
+				SaveSettings();
+				LoadSettings();
+				SortElements();
+				confirmReset = false;
+			else
+				confirmReset = true;
+			end
+		end
+
+		imgui.spacing();
+		if imgui.tree_node("Currently Available GUI Element Selector") then
+			DrawElementSelector();
+			imgui.tree_pop();
+		end
+
+		imgui.new_line();
+
+		imgui.begin_rect();
+		imgui.spacing();		
+		for i, key in ipairs(elementIdxs) do
+			DrawElementSettings(GetElementSettings(key), key);
+		end
+		imgui.end_rect(5);
+		
+		imgui.tree_pop();
+	end
+end
+
+
 re.on_draw_ui(function()
 
 	local changed = false;
@@ -675,33 +603,14 @@ re.on_draw_ui(function()
 		changed, settings.mapScale = imgui.slider_float("Map Scale", settings.mapScale, 0, 1);
 
 		--debug
-		-- changed, ram = imgui.slider_int("ram", ram, 0, 100);
-		-- imgui.text(curType);
+		changed, ram = imgui.slider_int("ram", ram, 0, 100);
+		imgui.text(curType);
 
-		imgui.spacing()
+		imgui.new_line();
 		changed, settings.overkillMode = imgui.checkbox("Overkill Mode", settings.overkillMode);
-
-		if settings.overkillMode then
-			if imgui.tree_node("Overkill Settings") then
-
-				imgui.spacing();
-				if imgui.tree_node("Currently Available GUI Element Selector") then
-					DrawElementSelector();
-					imgui.tree_pop();
-				end
-
-				imgui.new_line();
-
-				imgui.begin_rect();
-				imgui.spacing();
-				for i, key in ipairs(elementIdxs) do
-					DrawElementSettings(GetElementSettings(key), key);
-				end
-				imgui.end_rect(5);
-				
-				imgui.tree_pop();
-			end
-		end
+		-- if settings.overkillMode then
+			DrawOverkillUI();
+		-- end
 		
 		imgui.new_line();
         imgui.tree_pop();
@@ -710,33 +619,33 @@ re.on_draw_ui(function()
 end)
 
 
--- re.on_application_entry("RenderGUI", function()
--- 	GuiListIterate();
--- end)
-
-re.on_pre_gui_draw_element(function(element, context)
-
-	local gui_game_object = get_GameObject:call(element);
-	if gui_game_object == nil then return true end;	
-
-
-	--not really sure which is faster with this
-	--dunno if getcomponent is slow or not vs just getting the array of components
-	--probably doesnt really matter but who knows
-	--but it feels like itd be slower to do get_elements and iterate all the components
-	--though I also dunno what get_elements() actually does.
-	--I just hope none of this allocates a bunch of garbage but its really hard to know
-
-    -- local components = get_Components:call(gui_game_object):get_elements();
-    -- for i, component in ipairs(components) do
-	-- 	ManipulateElement(component);
-    -- end
-
-	local behaviour = getComponent:call(gui_game_object, behaviourTypeSystem);
-	if behaviour then
-		ManipulateElement(behaviour);
-	end
+re.on_application_entry("RenderGUI", function()
+	GuiListIterate();
 end)
+
+-- re.on_pre_gui_draw_element(function(element, context)
+
+-- 	local gui_game_object = get_GameObject:call(element);
+-- 	if gui_game_object == nil then return true end;	
+
+
+-- 	--not really sure which is faster with this
+-- 	--dunno if getcomponent is slow or not vs just getting the array of components
+-- 	--probably doesnt really matter but who knows
+-- 	--but it feels like itd be slower to do get_elements and iterate all the components
+-- 	--though I also dunno what get_elements() actually does.
+-- 	--I just hope none of this allocates a bunch of garbage but its really hard to know
+
+--     -- local components = get_Components:call(gui_game_object):get_elements();
+--     -- for i, component in ipairs(components) do
+-- 	-- 	ManipulateElement(component);
+--     -- end
+
+-- 	local behaviour = getComponent:call(gui_game_object, behaviourTypeSystem);
+-- 	if behaviour then
+-- 		ManipulateElement(behaviour);
+-- 	end
+-- end)
 
 
 re.on_config_save(function()
