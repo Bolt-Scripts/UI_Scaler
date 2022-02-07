@@ -9,9 +9,6 @@ You can add and remove elements from the list and it will be saved, though the d
 NOTE: An element must be loaded for it to show in the list, i.e. the bowgun elements would only be in the selection if you have a bowgun equiped on a quest.
 Though they don't neccessarily need to be visible at the time.
 
-NOTE: For some reason the keyboard shortcut UI is different somehow and is NOT in the list with literally every other UI element.
-Props if someone can figure that out.
-
 Some sub UI elements arent scalable like some of the health bar stuff.
 
 TIP: If you Ctrl+Click a slider in REF you can manually enter a value.

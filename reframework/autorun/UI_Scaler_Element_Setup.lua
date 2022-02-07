@@ -14,7 +14,7 @@ elementDatas = {
 	["snow.gui.GuiHud"] = {},
 	["snow.gui.GuiHud_QuestTarget"] = {},
 	["snow.gui.GuiHud_Timelimit"] = {isComplex = true},
-	["snow.gui.GuiHud_IntervalSkip"] = {anchor = "CenterTop"},
+	
 	["snow.gui.GuiLobbyQuestInfoWindow"] = {},
 	["snow.gui.GuiHud_Sharpness"] = {},
 	["snow.gui.GuiHud_Weapon_L_Swd"] = {},
@@ -33,6 +33,8 @@ elementDatas = {
 	["snow.gui.GuiProgressInfo"] = {anchor = "RightTop"},
 	["snow.gui.GuiQuestHudCustomShortCircle"] = {anchor = "RightCenter"},
 
+    ["snow.gui.GuiHud_IntervalSkip"] = {anchor = "CenterTop"},
+    ["snow.gui.GuiHud_GoodRelationship"] = {anchor = "CenterTop"},
     ["snow.gui.StmGuiHudKeyboardShortcut"] = {anchor = "CenterBottom"},
 	["snow.gui.GuiHud_TgCamera"] = {isComplex = true, anchor = "RightTop"},
 	["snow.gui.GuiHud_HunterWire"] = {isComplex = true, anchor = "CenterBottom"},
