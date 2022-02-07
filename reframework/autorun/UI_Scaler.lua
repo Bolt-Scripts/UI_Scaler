@@ -18,7 +18,8 @@ local settings = {
 local elementDatas = {
 	["snow.gui.GuiHud"] = {},
 	["snow.gui.GuiHud_QuestTarget"] = {},
-	["snow.gui.GuiHud_Timelimit"] = {},
+	["snow.gui.GuiHud_Timelimit"] = {anchor = "CenterTop"},
+	["snow.gui.GuiHud_IntervalSkip"] = {anchor = "CenterTop"},
 	["snow.gui.GuiLobbyQuestInfoWindow"] = {},
 	["snow.gui.GuiHud_Sharpness"] = {},
 	["snow.gui.GuiHud_Weapon_L_Swd"] = {},
