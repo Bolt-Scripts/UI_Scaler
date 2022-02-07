@@ -253,7 +253,6 @@ function ManipulateElement(guiBehaviour)
 	if not elementData.anchor then
 		elementData.anchor = "LeftTop";
 	end
-
 	
 	local elementSettings = nil;
 	if settings.overkillMode or elementData.isComplex then
@@ -307,7 +306,7 @@ function ManipulateElement(guiBehaviour)
 		local scaleWidth = baseWidth / tmpScale;
 		set_ScreenSize:call(view, Vector2f.new(scaleWidth, scaleWidth * aspect));
 
-		local dir = dirScales[anchorIdx];			
+		local dir = dirScales[anchorIdx];
 		x = (dir[1] * scalePosX);
 		y = (dir[2] * scalePosY);
 	end
@@ -384,11 +383,21 @@ end
 
 ------------------------------------INSANE UI GARBAGE----------------------------------------------
 
+function GetEmptyElement(bName)
+	return {
+		displayName = GetElementClassDisplayName(bName);
+		anchor = 0;
+		scale = 1;
+		posX = 0;
+		posY = 0;
+	};
+end
+
 function DrawElementSelector()
 
 	local count;
 	local entries, count = GetElementList();
-	local behaviourNames = {""};
+	local behaviourNames = {"Click to Add a UI Element"};
 
 	for i=0, count do
 		local bList = value:get_data(entries[i]);
@@ -414,13 +423,10 @@ function DrawElementSelector()
 	if changed and value > 1 then
 		--selected panel from drop down so add it to the list
 		local bName = behaviourNames[value];
-		local newGuy = {
-			displayName = GetElementClassDisplayName(bName);
-			anchor = 0;
-			scale = 1;
-		};
-		elementDatas[bName] = newGuy;
-		settings.elementSettings[bName] = newGuy;
+		
+		settings.elementSettings[bName] = GetEmptyElement(bName);
+		elementDatas[bName] = GetEmptyElement(bName);
+		elementDatas[bName].anchor = "LeftTop";
 		SortElements();
 	end
 end
@@ -464,7 +470,7 @@ function DrawElementSettings(element, typeName)
 		if elementType then
 
 			local fields = elementType:get_fields();
-			local fieldNames = {""};
+			local fieldNames = {"Click to Add a Sub-Panel"};
 
 			if not element.subPanels then
 				element.subPanels = {};
@@ -481,7 +487,7 @@ function DrawElementSettings(element, typeName)
 			changed, value = imgui.combo("Panel List ", 0, fieldNames);
 			if changed and value > 1 then
 				--selected panel from drop down so add it to the list
-				local panelName = fieldNames[value];				
+				local panelName = fieldNames[value];	
 				element.subPanels[panelName] = {
 					displayName = panelName:gsub("pnl_", "");
 					anchor = element.anchor;
