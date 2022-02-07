@@ -53,6 +53,9 @@ local subDirScales = {
 
 
 local elementIdxs = {};
+local foundElements = {};
+local uiOpen = false;
+
 
 function GetElementClassDisplayName(typeString)
 	return typeString:sub(10):gsub("GuiHud_", ""):gsub("Gui", "");
@@ -235,6 +238,10 @@ function ManipulateElement(guiBehaviour)
 
 	-- log.info(typeString);
 
+	if uiOpen then
+		foundElements[typeString] = true;
+	end
+
 	ramIdx = ramIdx + 1;
 	if ramIdx == ram then
 		curType = typeString;
@@ -245,10 +252,10 @@ function ManipulateElement(guiBehaviour)
 	local elementData = elementDatas[typeString];
 
 	if not elementData then
-		elementData = {};
 		if ramIdx ~= ram then
 			return;
 		end
+		elementData = {};
 	end
 	if not elementData.anchor then
 		elementData.anchor = "LeftTop";
@@ -411,11 +418,15 @@ function DrawElementSelector()
 		if behaviour then
 			local bName = behaviour:get_type_definition():get_full_name();
 			if not elementDatas[bName] then
-				table.insert(behaviourNames, bName);
+				foundElements[bName] = true;				
 			end
 		end
 
 		::continue::
+	end
+
+	for bName, value  in pairs(foundElements) do
+		table.insert(behaviourNames, bName);
 	end
 
 	local value;
@@ -600,6 +611,7 @@ end
 re.on_draw_ui(function()
 
 	local changed = false;
+	uiOpen = true;
 	
     if imgui.tree_node("UI Scaler") then
 
@@ -628,6 +640,10 @@ end)
 -- re.on_application_entry("RenderGUI", function()
 -- 	GuiListIterate();
 -- end)
+
+re.on_pre_application_entry("PreupdateGUI", function()
+	uiOpen = false;
+end)
 
 re.on_pre_gui_draw_element(function(element, context)
 

@@ -33,6 +33,7 @@ elementDatas = {
 	["snow.gui.GuiProgressInfo"] = {anchor = "RightTop"},
 	["snow.gui.GuiQuestHudCustomShortCircle"] = {anchor = "RightCenter"},
 
+    ["snow.gui.StmGuiHudKeyboardShortcut"] = {anchor = "CenterBottom"},
 	["snow.gui.GuiHud_TgCamera"] = {isComplex = true, anchor = "RightTop"},
 	["snow.gui.GuiHud_HunterWire"] = {isComplex = true, anchor = "CenterBottom"},
 	["snow.gui.GuiCommonHeadMessage"] = {isComplex = true, anchor = "CenterCenter"}, 
