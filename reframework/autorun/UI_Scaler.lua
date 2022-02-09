@@ -108,6 +108,14 @@ function LoadSettings()
 		if not elementDatas[key] then
 			elementDatas[key] = {}
 		end
+
+		if element.subPanels then
+			for panelName, subPanel in pairs(element.subPanels) do
+				if sdk.find_type_definition(key):get_field(panelName):get_type():is_a(guiElementType) then
+					subPanel.isElementType = true;
+				end
+			end
+		end
 	end
 
 	SortElements();
@@ -195,7 +203,6 @@ local get_GameObject = viaGuiType:get_method("get_GameObject");
 local goType = sdk.find_type_definition("via.GameObject");
 local get_Components = goType:get_method("get_Components");
 local getComponent = goType:get_method("getComponent(System.Type)");
-
 
 local invScale = 0;
 local tmpScale = 1;
@@ -306,14 +313,24 @@ function ManipulateElement(guiBehaviour)
 	local scalePosX = baseWidth * invScale / tmpScale;
 	local scalePosY = baseHeight * invScale / tmpScale;
 
+	--who knows anymore
+	if not elementData.pos then	elementData.pos = Vector4f.new(0,0,0,1); end
+	if not elementData.size then elementData.size = Vector2f.new(0,0); end
+	if not elementData.scaleV then elementData.scaleV = Vector4f.new(1,1,1,1); end
+
 	local x = 0;
 	local y = 0;
 	if elementData.useScale then
 		tmpScale = tmpScale + (invScale * scaleAdjust);
-		set_Scale:call(view, Vector4f.new(tmpScale, tmpScale, 1.0, 1.0));
+		elementData.scaleV.x = tmpScale;
+		elementData.scaleV.y = tmpScale;
+		set_Scale:call(view, elementData.scaleV);
 	else
 		local scaleWidth = baseWidth / tmpScale;
-		set_ScreenSize:call(view, Vector2f.new(scaleWidth, scaleWidth * aspect));
+
+		elementData.size.x = scaleWidth;
+		elementData.size.y = scaleWidth * aspect;
+		set_ScreenSize:call(view, elementData.size);
 
 		local dir = dirScales[anchorIdx];
 		x = (dir[1] * scalePosX);
@@ -332,12 +349,17 @@ function ManipulateElement(guiBehaviour)
 		y = y + elementSettings.posY;
 	end
 
-	set_Position:call(view, Vector4f.new(x, y, 0, 1));
+	elementData.pos.x = x;
+	elementData.pos.y = y;
+	set_Position:call(view, elementData.pos);
 end
 
 
 function HandleSubPanel(behaviour, subPanel, subPanelName)
 	
+	local tp = behaviour:get_field(subPanelName);
+	if not tp then return end;
+
 	if subPanel.useGlobalScale then
 		if subPanel.isName then
 			tmpScale = settings.namesScale;
@@ -353,37 +375,36 @@ function HandleSubPanel(behaviour, subPanel, subPanelName)
 	end
 	invScale = 1 - tmpScale;
 
-	local tp = behaviour:get_field(subPanelName);
-	if not tp then return end;
+
+	if not subPanel.vectorPos then subPanel.vectorPos = Vector4f.new(0,0,0,1); end
+	if not subPanel.vectorScale then subPanel.vectorScale = Vector4f.new(1,1,1,1); end
 
 	local dir = subDirScales[subPanel.anchor];
-	local oX = (dir[1] * baseWidth *  subPanel.posAdjustX * invScale);
-	local oY = (dir[2] * baseHeight * subPanel.posAdjustY * invScale);
+	subPanel.vectorPos.x = (dir[1] * baseWidth *  subPanel.posAdjustX * invScale);
+	subPanel.vectorPos.y = (dir[2] * baseHeight * subPanel.posAdjustY * invScale);
 
 	if settings.overkillMode or subPanel.absolutePos then
-		oX = oX + subPanel.posX;
-		oY = oY + subPanel.posY;
+		subPanel.vectorPos.x = subPanel.vectorPos.x + subPanel.posX;
+		subPanel.vectorPos.y = subPanel.vectorPos.y + subPanel.posY;
 	end
 
-	local offPos;
-	if subPanel.absolutePos then
-		offPos = Vector4f.new(oX, oY, 1.0, 1.0);
-	else
-		offPos = vecAdd:call(nil, 
-			get_Position:call(tp),
-		 	Vector4f.new(oX, oY, 1.0, 1.0)
-		);
-	end	
+	if not subPanel.absolutePos then
+		local startPos = get_Position:call(tp);
+		subPanel.vectorPos.x = subPanel.vectorPos.x + startPos.x;
+		subPanel.vectorPos.y = subPanel.vectorPos.y + startPos.y;
+	end
 
 
-	set_Position:call(tp, offPos);
+	set_Position:call(tp, subPanel.vectorPos);
 	
-	if tp:get_type_definition():is_a(guiElementType) then
+	if subPanel.isElementType then
 		--these dont really support scale properly
 		return;
 	end
 
-	set_Scale:call(tp, Vector4f.new(tmpScale, tmpScale, 1.0, 1.0));
+	subPanel.vectorScale.x = tmpScale;
+	subPanel.vectorScale.y = tmpScale;
+	set_Scale:call(tp, subPanel.vectorScale);
 end
 
 
@@ -502,8 +523,8 @@ function DrawElementSettings(element, typeName)
 			changed, value = imgui.combo("Panel List ", 0, fieldNames);
 			if changed and value > 1 then
 				--selected panel from drop down so add it to the list
-				local panelName = fieldNames[value];	
-				element.subPanels[panelName] = {
+				local panelName = fieldNames[value];
+				local newSub = {
 					displayName = panelName:gsub("pnl_", "");
 					anchor = element.anchor;
 					posX = 0;
@@ -511,7 +532,14 @@ function DrawElementSettings(element, typeName)
 					posAdjustX = 0;
 					posAdjustY = 0;
 					scale = 1;
+					absolutePos = true;
 				};
+
+				if elementType:get_field(panelName):is_a(guiElementType) then
+					newSub.isElementType = true;
+				end
+
+				element.subPanels[panelName] = newSub;
 			end
 
 
@@ -650,10 +678,12 @@ re.on_pre_application_entry("PreupdateGUI", function()
 	uiOpen = false;
 end)
 
+local drawElementBehaviour;
+local drawGameObject;
 re.on_pre_gui_draw_element(function(element, context)
 
-	local gui_game_object = get_GameObject:call(element);
-	if gui_game_object == nil then return true end;	
+	drawGameObject = get_GameObject:call(element);
+	if drawGameObject == nil then return true end;	
 
 
 	--not really sure which is faster with this
@@ -668,9 +698,9 @@ re.on_pre_gui_draw_element(function(element, context)
 	-- 	ManipulateElement(component);
     -- end
 
-	local behaviour = getComponent:call(gui_game_object, behaviourTypeSystem);
-	if behaviour then
-		ManipulateElement(behaviour);
+	drawElementBehaviour = getComponent:call(drawGameObject, behaviourTypeSystem);
+	if drawElementBehaviour then
+		ManipulateElement(drawElementBehaviour);
 	end
 end)
 

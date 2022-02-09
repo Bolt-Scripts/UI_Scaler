@@ -29,6 +29,7 @@ elementDatas = {
 	["snow.gui.GuiQuestHudMapWindow"] = {anchor = "LeftBottom", isMap = true},
 	["snow.gui.GuiQuestHudBulletSlider"] = {anchor = "RightBottom"},
 	["snow.gui.GuiHud_ItemActionSlider"] = {anchor = "RightBottom"},
+    ["snow.gui.GuiHud_Marionette"] = {anchor = "RightBottom"},
 	["snow.gui.GuiChatInfoWindow"] = {anchor = "RightCenter"},
 	["snow.gui.GuiProgressInfo"] = {anchor = "RightTop"},
 	["snow.gui.GuiQuestHudCustomShortCircle"] = {anchor = "RightCenter"},
