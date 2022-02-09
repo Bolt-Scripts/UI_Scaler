@@ -1,10 +1,5 @@
 
 
-baseWidth = 1920.0;
-baseHeight = 1080.0;
-aspect = 0.5625;
-scaleAdjust = 0.3;
-
 
 elementDatas = {
 
@@ -123,7 +118,7 @@ function SetDefaultSubPanels(settings)
 				anchor = 3;
 				posAdjustX = 0;
 				posAdjustY = 0.185;
-				posX = baseWidth / 2;
+				posX = 1920.0 / 2.0; --game uses internal 1080p resolution for UI
 				posY = 200;
 				scale = 1.0;
 				useGlobalScale = true;

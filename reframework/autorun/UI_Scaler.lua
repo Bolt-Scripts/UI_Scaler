@@ -53,16 +53,21 @@ local subDirScales = {
 };
 
 
+local baseWidth = 1920.0;
+local baseHeight = 1080.0;
+local aspect = 0.5625;
+local scaleAdjust = 0.3;
+
 local elementIdxs = {};
 local foundElements = {};
 local uiOpen = false;
 
 
-function GetElementClassDisplayName(typeString)
+local function GetElementClassDisplayName(typeString)
 	return typeString:sub(10):gsub("GuiHud_", ""):gsub("Gui", "");
 end
 
-function GetElementSettings(typeString)
+local function GetElementSettings(typeString)
 
 	local elementSettings = settings.elementSettings[typeString];
 
@@ -88,11 +93,24 @@ function GetElementSettings(typeString)
 end
 
 
-function SaveSettings()
+local function SortElements()
+
+	elementIdxs = {};
+
+	for key, element in pairs(elementDatas) do
+		table.insert(elementIdxs, key);
+	end
+
+	table.sort(elementIdxs, function (left, right)
+		return (GetElementSettings(left).displayName) < (GetElementSettings(right).displayName);
+	end)
+end
+
+local function SaveSettings()
 	json.dump_file("UI_Scaler.json", settings);
 end
 
-function LoadSettings()
+local function LoadSettings()
 	local loadedSettings = json.load_file("UI_Scaler.json");
 	if loadedSettings then
 		settings = loadedSettings;
@@ -123,18 +141,7 @@ function LoadSettings()
 	SetDefaultSubPanels(settings);
 end
 
-function SortElements()
 
-	elementIdxs = {};
-
-	for key, element in pairs(elementDatas) do
-		table.insert(elementIdxs, key);
-	end
-
-	table.sort(elementIdxs, function (left, right)
-		return (GetElementSettings(left).displayName) < (GetElementSettings(right).displayName);
-	end)
-end
 
 LoadSettings();
 
@@ -146,7 +153,7 @@ local curType = "";
 
 local guiManager = nil;
 
-function GetGuiManager()
+local function GetGuiManager()
 	if not guiManager then
 		guiManager = sdk.get_managed_singleton("snow.gui.GuiManager");
 	end
@@ -208,7 +215,7 @@ local invScale = 0;
 local tmpScale = 1;
 local ramIdx = -1;
 
-function GetElementList()
+local function GetElementList()
 	local behaviourTable = _guiSystemBehaviorTbl:get_data(GetGuiManager());
 	local count = _count:get_data(behaviourTable);
 	local entries = _entries:get_data(behaviourTable);
@@ -216,7 +223,7 @@ function GetElementList()
 	return entries, count;
 end
 
-function GuiListIterate()
+local function GuiListIterate()
 
 	local count;
 	local entries, count = GetElementList();
@@ -241,7 +248,61 @@ function GuiListIterate()
 	end
 end
 
-function ManipulateElement(guiBehaviour)
+
+----------------------------- UI MANIP CODE ------------------------------------------
+local function HandleSubPanel(behaviour, subPanel, subPanelName)
+	
+	local tp = behaviour:get_field(subPanelName);
+	if not tp then return end;
+
+	if subPanel.useGlobalScale then
+		if subPanel.isName then
+			tmpScale = settings.namesScale;
+		elseif subPanel.anchor > 5 then
+			tmpScale = settings.bottomRightScale;
+		elseif subPanel.anchor > 2 then
+			tmpScale = settings.centerScale;
+		else
+			tmpScale = settings.uiScale;
+		end
+	else
+		tmpScale = subPanel.scale;
+	end
+	invScale = 1 - tmpScale;
+
+
+	if not subPanel.vectorPos then subPanel.vectorPos = Vector4f.new(0,0,0,1); end
+	if not subPanel.vectorScale then subPanel.vectorScale = Vector4f.new(1,1,1,1); end
+
+	local dir = subDirScales[subPanel.anchor];
+	subPanel.vectorPos.x = (dir[1] * baseWidth *  subPanel.posAdjustX * invScale);
+	subPanel.vectorPos.y = (dir[2] * baseHeight * subPanel.posAdjustY * invScale);
+
+	if settings.overkillMode or subPanel.absolutePos then
+		subPanel.vectorPos.x = subPanel.vectorPos.x + subPanel.posX;
+		subPanel.vectorPos.y = subPanel.vectorPos.y + subPanel.posY;
+	end
+
+	if not subPanel.absolutePos then
+		local startPos = get_Position:call(tp);
+		subPanel.vectorPos.x = subPanel.vectorPos.x + startPos.x;
+		subPanel.vectorPos.y = subPanel.vectorPos.y + startPos.y;
+	end
+
+
+	set_Position:call(tp, subPanel.vectorPos);
+	
+	if subPanel.isElementType then
+		--these dont really support scale properly
+		return;
+	end
+
+	subPanel.vectorScale.x = tmpScale;
+	subPanel.vectorScale.y = tmpScale;
+	set_Scale:call(tp, subPanel.vectorScale);
+end
+
+local function ManipulateElement(guiBehaviour)
 
 	local typeString = guiBehaviour:get_type_definition():get_full_name();
 
@@ -355,57 +416,7 @@ function ManipulateElement(guiBehaviour)
 end
 
 
-function HandleSubPanel(behaviour, subPanel, subPanelName)
-	
-	local tp = behaviour:get_field(subPanelName);
-	if not tp then return end;
 
-	if subPanel.useGlobalScale then
-		if subPanel.isName then
-			tmpScale = settings.namesScale;
-		elseif subPanel.anchor > 5 then
-			tmpScale = settings.bottomRightScale;
-		elseif subPanel.anchor > 2 then
-			tmpScale = settings.centerScale;
-		else
-			tmpScale = settings.uiScale;
-		end
-	else
-		tmpScale = subPanel.scale;
-	end
-	invScale = 1 - tmpScale;
-
-
-	if not subPanel.vectorPos then subPanel.vectorPos = Vector4f.new(0,0,0,1); end
-	if not subPanel.vectorScale then subPanel.vectorScale = Vector4f.new(1,1,1,1); end
-
-	local dir = subDirScales[subPanel.anchor];
-	subPanel.vectorPos.x = (dir[1] * baseWidth *  subPanel.posAdjustX * invScale);
-	subPanel.vectorPos.y = (dir[2] * baseHeight * subPanel.posAdjustY * invScale);
-
-	if settings.overkillMode or subPanel.absolutePos then
-		subPanel.vectorPos.x = subPanel.vectorPos.x + subPanel.posX;
-		subPanel.vectorPos.y = subPanel.vectorPos.y + subPanel.posY;
-	end
-
-	if not subPanel.absolutePos then
-		local startPos = get_Position:call(tp);
-		subPanel.vectorPos.x = subPanel.vectorPos.x + startPos.x;
-		subPanel.vectorPos.y = subPanel.vectorPos.y + startPos.y;
-	end
-
-
-	set_Position:call(tp, subPanel.vectorPos);
-	
-	if subPanel.isElementType then
-		--these dont really support scale properly
-		return;
-	end
-
-	subPanel.vectorScale.x = tmpScale;
-	subPanel.vectorScale.y = tmpScale;
-	set_Scale:call(tp, subPanel.vectorScale);
-end
 
 
 
@@ -415,7 +426,7 @@ end
 
 ------------------------------------INSANE UI GARBAGE----------------------------------------------
 
-function GetEmptyElement(bName)
+local function GetEmptyElement(bName)
 	return {
 		displayName = GetElementClassDisplayName(bName);
 		anchor = 0;
@@ -425,7 +436,7 @@ function GetEmptyElement(bName)
 	};
 end
 
-function DrawElementSelector()
+local function DrawElementSelector()
 
 	local count;
 	local entries, count = GetElementList();
@@ -467,7 +478,7 @@ function DrawElementSelector()
 	end
 end
 
-function DrawPositioningUI(element)
+local function DrawPositioningUI(element)
 	if settings.unlockScaleSliders then
 		changed, element.scale = imgui.drag_float("Scale", element.scale, 0.001, 0, 100);
 	else
@@ -481,7 +492,7 @@ function DrawPositioningUI(element)
 	imgui.text(anchorName);
 end
 
-function DrawElementSettings(element, typeName)
+local function DrawElementSettings(element, typeName)
 
 	if imgui.tree_node(element.displayName) then
 
@@ -589,7 +600,7 @@ end
 
 local confirmReset = false;
 
-function DrawOverkillUI()
+local function DrawOverkillUI()
 	if imgui.tree_node("Overkill Settings") then
 
 		changed, settings.unlockScaleSliders = imgui.checkbox("Unlock Scale Sliders", settings.unlockScaleSliders);
