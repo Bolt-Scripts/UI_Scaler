@@ -1,7 +1,7 @@
 
+local elementSetup = {};
 
-
-local elementDatas = {
+elementSetup.datas = {
 
 	--isComplex is basically a flag that says that it should use the overkill settings regardless
 	--for complex elements that have multiple sub panels in different screen locations
@@ -39,7 +39,7 @@ local elementDatas = {
 };
 
 
-function elementDatas.SetDefaultSubPanels(settings)
+function elementSetup.SetDefaultSubPanels(settings)
 	local eName = "snow.gui.GuiHud_Weapon_I_Glaive";
 	if not settings.elementSettings[eName].subPanels then
 		settings.elementSettings   [eName].subPanels = {
@@ -199,4 +199,4 @@ function elementDatas.SetDefaultSubPanels(settings)
 
 end
 
-return elementDatas;
+return elementSetup;

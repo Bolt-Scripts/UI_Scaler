@@ -13,8 +13,9 @@ local settings = {
 	unlockScaleSliders = false;
 };
 
-local elementDatas = require("UI_Scaler.UI_Scaler_Element_Setup");
 
+local elementSetup = require("UI_Scaler.UI_Scaler_Element_Setup");
+local elementDatas = elementSetup.datas;
 
 local anchors = {
 	["LeftTop"     ] = 0,
@@ -138,7 +139,7 @@ local function LoadSettings()
 
 	SortElements();
 
-	elementDatas.SetDefaultSubPanels(settings);
+	elementSetup.SetDefaultSubPanels(settings);
 end
 
 
