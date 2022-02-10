@@ -108,10 +108,14 @@ local function SortElements()
 end
 
 local function SaveSettings()
+	log.info("UI_SCALER: Saved Settings");
 	json.dump_file("UI_Scaler.json", settings);
 end
 
 local function LoadSettings()
+
+	log.info("UI_SCALER: Loaded Settings");
+
 	local loadedSettings = json.load_file("UI_Scaler.json");
 	if loadedSettings then
 		settings = loadedSettings;
@@ -547,7 +551,7 @@ local function DrawElementSettings(element, typeName)
 					absolutePos = true;
 				};
 
-				if elementType:get_field(panelName):is_a(guiElementType) then
+				if elementType:get_field(panelName):get_type():is_a(guiElementType) then
 					newSub.isElementType = true;
 				end
 
@@ -685,6 +689,7 @@ end)
 -- re.on_application_entry("RenderGUI", function()
 -- 	GuiListIterate();
 -- end)
+
 
 re.on_pre_application_entry("PreupdateGUI", function()
 	uiOpen = false;
