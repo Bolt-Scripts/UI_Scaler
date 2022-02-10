@@ -1,7 +1,7 @@
 
 
 
-elementDatas = {
+local elementDatas = {
 
 	--isComplex is basically a flag that says that it should use the overkill settings regardless
 	--for complex elements that have multiple sub panels in different screen locations
@@ -9,7 +9,7 @@ elementDatas = {
 	["snow.gui.GuiHud"] = {},
 	["snow.gui.GuiHud_QuestTarget"] = {},
 	["snow.gui.GuiHud_Timelimit"] = {isComplex = true},
-	
+
 	["snow.gui.GuiLobbyQuestInfoWindow"] = {},
 	["snow.gui.GuiHud_Sharpness"] = {},
 	["snow.gui.GuiHud_Weapon_L_Swd"] = {},
@@ -34,12 +34,12 @@ elementDatas = {
     ["snow.gui.StmGuiHudKeyboardShortcut"] = {anchor = "CenterBottom"},
 	["snow.gui.GuiHud_TgCamera"] = {isComplex = true, anchor = "RightTop"},
 	["snow.gui.GuiHud_HunterWire"] = {isComplex = true, anchor = "CenterBottom"},
-	["snow.gui.GuiCommonHeadMessage"] = {isComplex = true, anchor = "CenterCenter"}, 
-	["snow.gui.GuiCommonOtomoHeadMessage"] = {isComplex = true, anchor = "CenterCenter"}, 
+	["snow.gui.GuiCommonHeadMessage"] = {isComplex = true, anchor = "CenterCenter"},
+	["snow.gui.GuiCommonOtomoHeadMessage"] = {isComplex = true, anchor = "CenterCenter"},
 };
 
 
-function SetDefaultSubPanels(settings)
+function elementDatas.SetDefaultSubPanels(settings)
 	local eName = "snow.gui.GuiHud_Weapon_I_Glaive";
 	if not settings.elementSettings[eName].subPanels then
 		settings.elementSettings   [eName].subPanels = {
@@ -122,7 +122,7 @@ function SetDefaultSubPanels(settings)
 				posY = 200;
 				scale = 1.0;
 				useGlobalScale = true;
-                absolutePos = true;                
+                absolutePos = true;
 			},
             _pnl_NomalQuestTimer = {
 				anchor = 0;
@@ -131,7 +131,7 @@ function SetDefaultSubPanels(settings)
 				posX = 0;
 				posY = 0;
 				scale = 1.0;
-				useGlobalScale = true;                
+				useGlobalScale = true;
 			},
             -- this exists but i dont really know what its for so idk what to do with it
             -- _pnl_TougiQuestTimer = {}
@@ -198,3 +198,5 @@ function SetDefaultSubPanels(settings)
 	end
 
 end
+
+return elementDatas;

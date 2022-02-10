@@ -13,7 +13,7 @@ local settings = {
 	unlockScaleSliders = false;
 };
 
-require("UI_Scaler_Element_Setup");
+local elementDatas = require("UI_Scaler.UI_Scaler_Element_Setup");
 
 
 local anchors = {
@@ -120,7 +120,7 @@ local function LoadSettings()
 	if not settings.mapScale then settings.mapScale = 0.8; end
 	if not settings.centerScale then settings.centerScale = 0.75; end
 	if not settings.bottomRightScale then settings.bottomRightScale = settings.uiScale; end
-	if not settings.elementSettings then settings.elementSettings = {}; end	
+	if not settings.elementSettings then settings.elementSettings = {}; end
 
 	for key, element in pairs(settings.elementSettings) do
 		if not elementDatas[key] then
@@ -138,7 +138,7 @@ local function LoadSettings()
 
 	SortElements();
 
-	SetDefaultSubPanels(settings);
+	elementDatas.SetDefaultSubPanels(settings);
 end
 
 
@@ -157,7 +157,7 @@ local function GetGuiManager()
 	if not guiManager then
 		guiManager = sdk.get_managed_singleton("snow.gui.GuiManager");
 	end
-	
+
 	return guiManager;
 end
 
@@ -235,15 +235,15 @@ local function GuiListIterate()
 		if not bList then
 			goto continue;
 		end
-		
+
 		local guiBaseRootBehaviours = mItems:get_data(bList);
 		local behaviour = guiBaseRootBehaviours[0];
 
 		if behaviour then
 			ManipulateElement(behaviour);
 		end
-		
-		
+
+
 		::continue::
 	end
 end
@@ -251,7 +251,7 @@ end
 
 ----------------------------- UI MANIP CODE ------------------------------------------
 local function HandleSubPanel(behaviour, subPanel, subPanelName)
-	
+
 	local tp = behaviour:get_field(subPanelName);
 	if not tp then return end;
 
@@ -291,7 +291,7 @@ local function HandleSubPanel(behaviour, subPanel, subPanelName)
 
 
 	set_Position:call(tp, subPanel.vectorPos);
-	
+
 	if subPanel.isElementType then
 		--these dont really support scale properly
 		return;
@@ -317,7 +317,7 @@ local function ManipulateElement(guiBehaviour)
 		curType = typeString;
 		return;
 	end
-	
+
 
 	local elementData = elementDatas[typeString];
 
@@ -330,7 +330,7 @@ local function ManipulateElement(guiBehaviour)
 	if not elementData.anchor then
 		elementData.anchor = "LeftTop";
 	end
-	
+
 	local elementSettings = nil;
 	if settings.overkillMode or elementData.isComplex then
 		elementSettings = GetElementSettings(typeString);
@@ -345,7 +345,7 @@ local function ManipulateElement(guiBehaviour)
 
 	local view = view_root:get_data(guiBehaviour);
 	tmpScale = elementData.scale;
-	
+
 
 	if elementSettings then
 		if elementData.isComplex then
@@ -364,10 +364,10 @@ local function ManipulateElement(guiBehaviour)
 			tmpScale = settings.centerScale;
 		end
 
-		
+
 		if elementData.isMap then
 			tmpScale = settings.mapScale;
-		end		
+		end
 	end
 
 	invScale = 1 - tmpScale;
@@ -447,14 +447,14 @@ local function DrawElementSelector()
 		if not bList then
 			goto continue;
 		end
-		
+
 		local guiBaseRootBehaviours = mItems:get_data(bList);
 		local behaviour = guiBaseRootBehaviours[0];
 
 		if behaviour then
 			local bName = behaviour:get_type_definition():get_full_name();
 			if not elementDatas[bName] then
-				foundElements[bName] = true;				
+				foundElements[bName] = true;
 			end
 		end
 
@@ -470,7 +470,7 @@ local function DrawElementSelector()
 	if changed and value > 1 then
 		--selected panel from drop down so add it to the list
 		local bName = behaviourNames[value];
-		
+
 		settings.elementSettings[bName] = GetEmptyElement(bName);
 		elementDatas[bName] = GetEmptyElement(bName);
 		elementDatas[bName].anchor = "LeftTop";
@@ -502,7 +502,7 @@ local function DrawElementSettings(element, typeName)
 			settings.elementSettings[typeName] = nil;
 			SortElements();
 		end
-		
+
 		imgui.spacing();
 		imgui.begin_rect();
 
@@ -562,7 +562,7 @@ local function DrawElementSettings(element, typeName)
 
 					if not subPanel.displayName then
 						subPanel.displayName = panelName;
-					end						
+					end
 
 					if imgui.tree_node(subPanel.displayName.."  - SubPanel") then
 
@@ -589,7 +589,7 @@ local function DrawElementSettings(element, typeName)
 		else
 			re.msg("Bad UI Type: "..typeName);
 		end
-		
+
 		imgui.end_rect(5);
 		imgui.tree_pop();
 	end
@@ -640,12 +640,12 @@ local function DrawOverkillUI()
 		imgui.new_line();
 
 		imgui.begin_rect();
-		imgui.spacing();		
+		imgui.spacing();
 		for i, key in ipairs(elementIdxs) do
 			DrawElementSettings(GetElementSettings(key), key);
 		end
 		imgui.end_rect(5);
-		
+
 		imgui.tree_pop();
 	end
 end
@@ -655,7 +655,7 @@ re.on_draw_ui(function()
 
 	local changed = false;
 	uiOpen = true;
-	
+
     if imgui.tree_node("UI Scaler") then
 
 		changed, settings.uiScale = imgui.slider_float("Left Scale", settings.uiScale, 0, 1);
@@ -673,7 +673,7 @@ re.on_draw_ui(function()
 		-- if settings.overkillMode then
 			DrawOverkillUI();
 		-- end
-		
+
 		imgui.new_line();
         imgui.tree_pop();
     end
@@ -694,7 +694,7 @@ local drawGameObject;
 re.on_pre_gui_draw_element(function(element, context)
 
 	drawGameObject = get_GameObject:call(element);
-	if drawGameObject == nil then return true end;	
+	if drawGameObject == nil then return true end;
 
 
 	--not really sure which is faster with this
