@@ -13,7 +13,7 @@ local settings = {
 	unlockScaleSliders = false;
 };
 
-local elementDatas = require("UI_Scaler_Element_Setup");
+local elementDatas = require("UI_Scaler.UI_Scaler_Element_Setup");
 
 
 local anchors = {
