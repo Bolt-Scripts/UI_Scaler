@@ -1,0 +1,15 @@
+{
+	"Lua.diagnostics.globals": [
+		"sdk",
+		"imgui",
+		"draw",
+		"log",
+		"re",
+		"json",
+		"fs",
+		"d2d",
+		"Vector2f",
+		"Vector3f",
+		"Vector4f",
+	]
+}
