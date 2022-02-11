@@ -294,7 +294,6 @@ local function HandleSubPanel(behaviour, subPanel, subPanelName)
 		subPanel.vectorPos.y = subPanel.vectorPos.y + startPos.y;
 	end
 
-
 	set_Position:call(tp, subPanel.vectorPos);
 
 	if subPanel.isElementType then

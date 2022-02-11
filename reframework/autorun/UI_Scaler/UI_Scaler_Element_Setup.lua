@@ -20,6 +20,7 @@ elementSetup.datas = {
 	["snow.gui.GuiHud_Weapon_I_Glaive"] = {isComplex = true},
 	["snow.gui.GuiHud_Weapon_Ham"] = {},
 	["snow.gui.GuiHud_Weapon_D_Bld"] = {},
+	["snow.gui.GuiHud_Weapon_Bow"] = {anchor = "CenterCenter"},
 	["snow.gui.GuiHud_Weapon_Bowgun"] = {isComplex = true},
 	["snow.gui.GuiQuestHudMapWindow"] = {anchor = "LeftBottom", isMap = true},
 	["snow.gui.GuiQuestHudBulletSlider"] = {anchor = "RightBottom"},
@@ -193,6 +194,16 @@ function elementSetup.SetDefaultSubPanels(settings)
 				posY = 0.0;
 				scale = 1.0;
 				useGlobalScale = true;
+			},
+			_BowgunAiming = {
+				anchor = 4;
+				posAdjustX = 1;
+				posAdjustY = 1;
+				posX = 0.0;
+				posY = 0.0;
+				scale = 1.0;
+				useGlobalScale = true;
+				absolutePos = true;
 			},
 		};
 	end
