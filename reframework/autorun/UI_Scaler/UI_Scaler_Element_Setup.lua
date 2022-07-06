@@ -25,14 +25,16 @@ elementSetup.datas = {
 	["snow.gui.GuiQuestHudMapWindow"] = {anchor = "LeftBottom", isMap = true},
 	["snow.gui.GuiQuestHudBulletSlider"] = {anchor = "RightBottom"},
 	["snow.gui.GuiHud_ItemActionSlider"] = {anchor = "RightBottom"},
-    ["snow.gui.GuiHud_Marionette"] = {anchor = "RightBottom"},
+   ["snow.gui.GuiHud_Marionette"] = {anchor = "RightBottom"},
 	["snow.gui.GuiChatInfoWindow"] = {anchor = "RightCenter"},
 	["snow.gui.GuiProgressInfo"] = {anchor = "RightTop"},
 	["snow.gui.GuiQuestHudCustomShortCircle"] = {anchor = "RightCenter"},
+	["snow.gui.GuiHud_WeaponTechniqueMySet"] = {isComplex = true, anchor = "CenterBottom"},
 
-    ["snow.gui.GuiHud_IntervalSkip"] = {anchor = "CenterTop"},
-    ["snow.gui.GuiHud_GoodRelationship"] = {anchor = "CenterTop"},
-    ["snow.gui.StmGuiHudKeyboardShortcut"] = {anchor = "CenterBottom"},
+
+   ["snow.gui.GuiHud_IntervalSkip"] = {anchor = "CenterTop"},
+   ["snow.gui.GuiHud_GoodRelationship"] = {anchor = "CenterTop"},
+   ["snow.gui.StmGuiHudKeyboardShortcut"] = {anchor = "CenterBottom"},
 	["snow.gui.GuiHud_TgCamera"] = {isComplex = true, anchor = "RightTop"},
 	["snow.gui.GuiHud_HunterWire"] = {isComplex = true, anchor = "CenterBottom"},
 	["snow.gui.GuiCommonHeadMessage"] = {isComplex = true, anchor = "CenterCenter"},
@@ -43,7 +45,7 @@ elementSetup.datas = {
 function elementSetup.SetDefaultSubPanels(settings)
 	local eName = "snow.gui.GuiHud_Weapon_I_Glaive";
 	if not settings.elementSettings[eName].subPanels then
-		settings.elementSettings   [eName].subPanels = {
+		settings.elementSettings[eName].subPanels = {
 			pnl_I_Gla_Top = {
 				anchor = 0.0;
 				posAdjustX = 0.15;
@@ -55,10 +57,55 @@ function elementSetup.SetDefaultSubPanels(settings)
 			},
 		};
 	end
+	
+	eName = "snow.gui.GuiHud_WeaponTechniqueMySet";
+	if not settings.elementSettings[eName].subPanels then
+		settings.elementSettings[eName].subPanels = {
+			pnl_WeaponTechniqueMyset = {
+				anchor = 5;
+				posAdjustX = 0;
+				posAdjustY = 0;
+				posX = 0;
+				posY = 0;
+				scale = 1;
+				useGlobalScale = true;
+			},
+			pnl_ActionCommand1 = {
+				anchor = 5;
+				posAdjustX = 0;
+				posAdjustY = 0.075;
+				posX = 0;
+				posY = -100;
+				scale = 1;
+				useGlobalScale = true;
+				absolutePos = true;
+			},
+			pnl_ActionCommand2 = {
+				anchor = 5;
+				posAdjustX = 0.15;
+				posAdjustY = -0.025;
+				posX = -200;
+				posY = 30;
+				scale = 1;
+				useGlobalScale = true;
+				absolutePos = true;
+			},
+			pnl_ActionCommand3 = {
+				anchor = 5;
+				posAdjustX = -0.15;
+				posAdjustY = -0.025;
+				posX = 200;
+				posY = 30;
+				scale = 1;
+				useGlobalScale = true;
+				absolutePos = true;
+			},
+		};
+	end
 
 	eName = "snow.gui.GuiHud_TgCamera";
 	if not settings.elementSettings[eName].subPanels then
-		settings.elementSettings   [eName].subPanels = {
+		settings.elementSettings[eName].subPanels = {
 			_tgCameraIconPanel = {
 				anchor = 6;
 				posAdjustX = 1;
