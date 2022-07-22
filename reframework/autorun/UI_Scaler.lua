@@ -108,8 +108,12 @@ local function SortElements()
 end
 
 local function SaveSettings()
-	log.info("UI_SCALER: Saved Settings");
-	json.dump_file("UI_Scaler.json", settings);
+	local succ = json.dump_file("UI_Scaler.json", settings);
+	if succ then
+		log.info("UI_SCALER: Saved Settings");
+	else
+		log.error("UI_SCALER: Failed to save settings UI_Scaler.json");
+	end
 end
 
 local function LoadSettings()
@@ -661,6 +665,11 @@ re.on_draw_ui(function()
 	uiOpen = true;
 
     if imgui.tree_node("UI Scaler") then
+	 
+		changed = imgui.button("Save Settings");
+		if changed then
+			SaveSettings();
+		end
 
 		changed, settings.uiScale = imgui.slider_float("Left Scale", settings.uiScale, 0, 1);
 		changed, settings.centerScale = imgui.slider_float("Center Scale", settings.centerScale, 0, 1);
