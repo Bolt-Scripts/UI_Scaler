@@ -723,18 +723,22 @@ end
 
 if modUI then
 
-	if not modUI.FloatSlider then
-		modUI.FloatSlider = modUI.SliderScaled;
-	end
 
 	local name = "UI Scaler";
 	local description = "It does what it says on the tin.";
 	modUI.OnMenu(name, description, function()		
-		_,settings.uiScale = modUI.FloatSlider("Left Scale",           settings.uiScale, 0, 1         , "Scale for elements on the left side of the screen."    );
-		_,settings.centerScale = modUI.FloatSlider("Center Scale",     settings.centerScale, 0, 1     , "Scale for elements in the center area of the screen."  );
-		_,settings.bottomRightScale = modUI.FloatSlider("Right Scale", settings.bottomRightScale, 0, 1, "Scale for elements on the right side of the screen."   );
-		_,settings.mapScale = modUI.FloatSlider("Map Scale",           settings.mapScale, 0, 1        , "Scale for the map."                                    );
-		_,settings.namesScale = modUI.FloatSlider("Names Scale",       settings.namesScale, 0, 1      , "Scale for name elements in multiplayer."               );
+	
+		if modUI.version < 1.3 then
+		
+			modUI.Label("Please update mod menu API.");
+		
+		else	
+			_,settings.uiScale = modUI.FloatSlider("Left Scale",           settings.uiScale, 0, 1         , "Scale for elements on the left side of the screen."    );
+			_,settings.centerScale = modUI.FloatSlider("Center Scale",     settings.centerScale, 0, 1     , "Scale for elements in the center area of the screen."  );
+			_,settings.bottomRightScale = modUI.FloatSlider("Right Scale", settings.bottomRightScale, 0, 1, "Scale for elements on the right side of the screen."   );
+			_,settings.mapScale = modUI.FloatSlider("Map Scale",           settings.mapScale, 0, 1        , "Scale for the map."                                    );
+			_,settings.namesScale = modUI.FloatSlider("Names Scale",       settings.namesScale, 0, 1      , "Scale for name elements in multiplayer."               );
+		end
 	end);
 end
 
