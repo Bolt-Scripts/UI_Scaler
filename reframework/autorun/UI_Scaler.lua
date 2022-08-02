@@ -730,11 +730,11 @@ if modUI then
 	local name = "UI Scaler";
 	local description = "It does what it says on the tin.";
 	modUI.OnMenu(name, description, function()		
-		settings.uiScale = modUI.FloatSlider("Left Scale", "Scale for elements on the left side of the screen.", settings.uiScale, 0, 1, 100);
-		settings.centerScale = modUI.FloatSlider("Center Scale", "Scale for elements in the center area of the screen.", settings.centerScale, 0, 1, 100);
-		settings.bottomRightScale = modUI.FloatSlider("Right Scale", "Scale for elements on the right side of the screen.", settings.bottomRightScale, 0, 1, 100);
-		settings.mapScale = modUI.FloatSlider("Map Scale", "Scale for the map.", settings.mapScale, 0, 1, 100);
-		settings.namesScale = modUI.FloatSlider("Names Scale", "Scale for name elements in multiplayer.", settings.namesScale, 0, 1, 100);
+		_,settings.uiScale = modUI.FloatSlider("Left Scale",           settings.uiScale, 0, 1         , "Scale for elements on the left side of the screen."    );
+		_,settings.centerScale = modUI.FloatSlider("Center Scale",     settings.centerScale, 0, 1     , "Scale for elements in the center area of the screen."  );
+		_,settings.bottomRightScale = modUI.FloatSlider("Right Scale", settings.bottomRightScale, 0, 1, "Scale for elements on the right side of the screen."   );
+		_,settings.mapScale = modUI.FloatSlider("Map Scale",           settings.mapScale, 0, 1        , "Scale for the map."                                    );
+		_,settings.namesScale = modUI.FloatSlider("Names Scale",       settings.namesScale, 0, 1      , "Scale for name elements in multiplayer."               );
 	end);
 end
 
