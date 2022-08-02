@@ -688,10 +688,55 @@ re.on_draw_ui(function()
 		-- end
 
 		imgui.new_line();
-        imgui.tree_pop();
+      imgui.tree_pop();
     end
 
 end)
+
+
+
+-------------------------Custom Mod UI COOLNESS----------------------------------
+
+function IsModuleAvailable(name)
+  if package.loaded[name] then
+    return true
+  else
+    for _, searcher in ipairs(package.searchers or package.loaders) do
+      local loader = searcher(name)
+      if type(loader) == 'function' then
+        package.preload[name] = loader
+        return true
+      end
+    end
+    return false
+  end
+end
+
+
+local apiPackageName = "ModOptionsMenu.ModMenuApi";
+local modUI = nil;
+local DrawSlider;
+
+if IsModuleAvailable(apiPackageName) then
+	modUI = require(apiPackageName);
+end
+
+if modUI then
+
+	if not modUI.FloatSlider then
+		modUI.FloatSlider = modUI.SliderScaled;
+	end
+
+	local name = "UI Scaler";
+	local description = "It does what it says on the tin.";
+	modUI.OnMenu(name, description, function()		
+		settings.uiScale = modUI.FloatSlider("Left Scale", "Scale for elements on the left side of the screen.", settings.uiScale, 0, 1, 100);
+		settings.centerScale = modUI.FloatSlider("Center Scale", "Scale for elements in the center area of the screen.", settings.centerScale, 0, 1, 100);
+		settings.bottomRightScale = modUI.FloatSlider("Right Scale", "Scale for elements on the right side of the screen.", settings.bottomRightScale, 0, 1, 100);
+		settings.mapScale = modUI.FloatSlider("Map Scale", "Scale for the map.", settings.mapScale, 0, 1, 100);
+		settings.namesScale = modUI.FloatSlider("Names Scale", "Scale for name elements in multiplayer.", settings.namesScale, 0, 1, 100);
+	end);
+end
 
 
 -- re.on_application_entry("RenderGUI", function()
@@ -733,3 +778,37 @@ end)
 re.on_config_save(function()
 	SaveSettings();
 end)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
